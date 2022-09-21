@@ -86,6 +86,7 @@ def add_entry(content):
     # Assemble new entry str and append
     new_entry = '{},{},{},{},{}\n'.format(entry_id, entry_name, entry_type, entry_dep, entry_date)
     content.append(new_entry)
+    print(content)
     return content
 
 def remove_entry(content):
