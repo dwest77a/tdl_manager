@@ -4,3 +4,5 @@ Updated 21/09/2022
 Future Additions:
  - Add priority to List items, then able to sort by priority
  - Add progress percentage/fraction - string entry
+ - Reconfigure 'show' function to use spaces and allow for '' for better user experience
+ - Add item types for easy sorting
