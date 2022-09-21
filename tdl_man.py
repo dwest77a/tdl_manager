@@ -1,7 +1,7 @@
 from datetime import datetime
 
 ## Open ToDoList data and read content
-tdl_data = "/home/dwest77/Documents/tdl/tdl_data.txt"
+tdl_data = "/home/dwest77/Documents/tdl_manager/tdl_data.txt"
 f = open(tdl_data,'r')
 content = f.readlines()
 f.close()
@@ -24,9 +24,14 @@ def show_all(content, name='',tpe='', dep=''):
     # Get current datetime
     today = datetime.now()
     now = today.strftime("%d/%m/%Y %H:%M:%S")
-
+    print('')
     print('To Do List: {}'.format(now))
-    print('------------------------------------')
+    print(buffer('ID',3),end="")
+    print(buffer('Item',80),end="")
+    print(buffer('Type',20),end="")
+    print(buffer('Dependency',20),end="")
+    print('Date')
+    print('----------------------------------------------------------------------------------------------------------------------------------------------')
     filter = []
     if name != '' or dep != '' or tpe != '':
         for x, line in enumerate(content):
