@@ -26,7 +26,7 @@ def show_all(content, name='',tpe='', dep=''):
     now = today.strftime("%d/%m/%Y %H:%M:%S")
 
     print('To Do List: {}'.format(now))
-    print('-----------------------------------')
+    print('------------------------------------')
     filter = []
     if name != '' or dep != '' or tpe != '':
         for x, line in enumerate(content):
