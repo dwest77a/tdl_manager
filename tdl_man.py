@@ -10,7 +10,17 @@ local_removals = []
 
 # TDL entries have <ID>,<Name>,<Date>
 
-def show_all(content, name='', dep=''):
+# For formatting item entries in list
+def buffer(item, length):
+    buff=''
+    if len(item) >= length:
+        item = item[:length]
+    else:
+        for x in range(0,length-len(item)):
+            buff += ' '
+    return str(item+buff)
+
+def show_all(content, name='',tpe='', dep=''):
     # Get current datetime
     today = datetime.now()
     now = today.strftime("%d/%m/%Y %H:%M:%S")
@@ -18,11 +28,13 @@ def show_all(content, name='', dep=''):
     print('To Do List: {}'.format(now))
     print('-----------------------------------')
     filter = []
-    if name != '' or dep != '':
+    if name != '' or dep != '' or tpe != '':
         for x, line in enumerate(content):
             if name != '' and name in line:
                 filter.append(x)
             elif dep != '' and dep in line:
+                filter.append(x)
+            elif tpe != '' and tpe in line:
                 filter.append(x)
     # For all entries
     for x, line in enumerate(content):
@@ -35,25 +47,14 @@ def show_all(content, name='', dep=''):
             if id in local_removals:
                 print('*',end='')
             ## Output formatting so all entries use 100 char descriptions
-            # Description formatting
-            buff = ''
+            
+            # Format id=0,name=1,type=2,dependencies=3,date=4
             line = line.split(',')
-            print(line[0] + ' ',end="")
-            for x in range(0,100-len(line[1])):
-                buff += ' '
-            print(line[1] + buff,end="")
-            if len(line) == 4:
-                buff = ''
-                for y in range(0,20-len(line[2])):
-                    buff += ' '
-                print(line[2] + buff,end="")
-                print(line[3])
-            else:
-                buff = 'n/a'
-                for y in range(0,17):
-                    buff += ' '
-                print(buff,end="")
-                print(line[2])
+            print(buffer(line[0],3),end="")
+            print(buffer(line[1],80),end="")
+            print(buffer(line[2],20),end="")
+            print(buffer(line[3],20),end="")
+            print(line[4])
     print('')
     # List entries scheduled for removal by id
     if len(local_removals) != 0:
@@ -77,12 +78,13 @@ def add_entry(content):
         entry_id = 0
 
     # Get entry name as input and assemble date in readable format
-    entry_name = input('New Item: ')
-    entry_dep  = input('Dependencies: ')
+    entry_name = input('New Item (80 char): ')
+    entry_type = input('Type (20 char): ')
+    entry_dep  = input('Dependencies (20 char): ')
     entry_date = today.strftime("%d/%m/%Y %H:%M:%S")
 
     # Assemble new entry str and append
-    new_entry = '{},{},{},{}\n'.format(entry_id, entry_name, entry_dep, entry_date)
+    new_entry = '{},{},{},{},{}\n'.format(entry_id, entry_name, entry_type, entry_dep, entry_date)
     content.append(new_entry)
     return content
 
@@ -132,32 +134,27 @@ def ammend_entry(content):
         if not is_valid:
             print('-tdl: Unrecognised ID - enter existing ID for ammendment')
     # Get entry name as input and assemble date in readable format
-    if entry_id == '*':
-        dep  = input('*Dependencies: ')
-        new_content = []
-        for line in content:
-            line = line.split(',')
-            new_line = '{},{},{},{}'.format(line[0], line[1], dep, line[2])
-            new_content.append(new_line)
-        content = new_content
-    else:
-        # Find old entry
-        for x in range(len(content)):
-            if entry_id == content[x].split(',')[0]:
-                old_entry = content[x]
-                new_index = x
 
-        entry_name = input('*Name: ')
-        if entry_name == '':
-            entry_name = old_entry.split(',')[1]
-        entry_dep  = input('*Dependencies: ')
-        if entry_dep == '':
-            entry_dep = old_entry.split(',')[2]
-        entry_date = today.strftime("%d/%m/%Y %H:%M:%S")
+    # Find old entry
+    for x in range(len(content)):
+        if entry_id == content[x].split(',')[0]:
+            old_entry = content[x]
+            new_index = x
 
-        # Assemble new entry str and append
-        adj_entry = '{},{},{},{}\n'.format(entry_id, entry_name, entry_dep, entry_date)
-        content[new_index] = adj_entry
+    entry_name = input('*Name: ')
+    if entry_name == '':
+        entry_name = old_entry.split(',')[1]
+    entry_type = input('*Type: ')
+    if entry_type == '':
+        entry_type = old_entry.split(',')[2]
+    entry_dep  = input('*Dependencies: ')
+    if entry_dep == '':
+        entry_dep = old_entry.split(',')[3]
+    entry_date = today.strftime("%d/%m/%Y %H:%M:%S")
+
+    # Assemble new entry str and append
+    adj_entry = '{},{},{},{},{}\n'.format(entry_id, entry_name, entry_type, entry_dep, entry_date)
+    content[new_index] = adj_entry
 
     return content
 
@@ -167,6 +164,9 @@ Help/Info - Accepted commands
 >> add    - add new entry to ToDoList
 >> rm     - remove existing entry by ID
 >> show   - list all current entries including those to be removed on save
+        name="Name of item"
+        dep="Dependencies
+        type="Type of item"
 >> ammend - ammend descritpion of existing entry by ID
 >> exit   - exit and save data
 >> exit q - exit without saving (refresh removals list)
@@ -187,6 +187,33 @@ def save_data(content):
     g.write(word)
     g.close()
 
+def show_kwargs(content, cmd):
+    is_entering = False
+    kwargs = []
+    entry = ''
+    for char in cmd[5:]:
+        if char == '"' and is_entering:
+            is_entering = False
+            kwargs.append(entry)
+            entry = ''
+        elif char == '"' and not is_entering:
+            is_entering = True
+        elif char == ' ' and not is_entering:
+            kwargs.append(entry)
+            entry = ''
+        else:
+            entry += char
+    kwargs.append(entry)
+    name, tpe, dep = '','',''
+    for kw in kwargs:
+        if 'name=' in kw:
+            name = kw.replace('name=','')
+        elif 'type=' in kw:
+            tpe = kw.replace('type=','')
+        elif 'dep=' in kw:
+            dep = kw.replace('dep=','')
+    show_all(content,name=name, tpe=tpe, dep=dep)
+
 # Welcome to manager
 print('\nTo Do List Manager v0.1 - dwest77\n')
 # Entry for new fields
@@ -196,19 +223,10 @@ while 'exit' not in cmd:
 
     # Show all entries command
     if 'show' in cmd:
-        cmd_arr = cmd.split('-')
-        try:
-            name = cmd_arr[1]
-            try:
-                dep = cmd_arr[2]
-            except:
-                dep = ''
-            if name == '*':
-                name = ''
-            show_all(content,name=name, dep=dep)
-        except:
+        if cmd == 'show':
             show_all(content)
-        
+        else:
+            show_kwargs(content,cmd)
     # Add entry to list
     elif cmd == 'add':
         content = add_entry(content)
