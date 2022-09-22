@@ -11,6 +11,23 @@ local_removals = []
 # TDL entries have <ID>,<Name>,<Date>
 
 # For formatting item entries in list
+def cascade(content,lrs):
+    id_counter = 0
+    for x in range(len(content)):
+        line = content[x]
+        id = str(line.split(',')[0])
+
+        # Remember to reset removal list
+        for x in range(len(lrs)):
+            if lrs[x] == id:
+                lrs[x] = id_counter
+
+        entry = line[len(id):]
+        entry = str(id_counter) + entry
+        content[x] = entry
+        id_counter += 1
+    return content, lrs
+
 def buffer(item, length):
     buff=''
     if len(item) >= length:
@@ -65,7 +82,7 @@ def show_all(content, name='',tpe='', dep=''):
     if len(local_removals) != 0:
 
         # Formatting for local removals
-        print('To be removed: ',end='')
+        print('To be removed (ID): ',end='')
         for lr in local_removals:
             print(lr + ' ',end='')
         print('')
@@ -91,7 +108,6 @@ def add_entry(content):
     # Assemble new entry str and append
     new_entry = '{},{},{},{},{}\n'.format(entry_id, entry_name, entry_type, entry_dep, entry_date)
     content.append(new_entry)
-    print(content)
     return content
 
 def remove_entry(content):
@@ -182,16 +198,19 @@ def save_data(content):
     # Write tdl data to output file
 
     word = ''
+    newcontent = []
     for line in content:
         id = line.split(',')[0]
         # Write only non-removal items to save string
         if id not in local_removals:
             word += line
+            newcontent.append(line)
 
     # Write savestring to file
     g = open(tdl_data,'w')
     g.write(word)
-    g.close()
+    g.close() 
+    return newcontent
 
 def show_kwargs(content, cmd):
     is_entering = False
@@ -247,6 +266,13 @@ while 'exit' not in cmd:
     # Do nothing
     elif cmd == '':
         pass
+    # Save Entries
+    elif cmd == 'save':
+        content,local_removals = cascade(content,local_removals)
+        content = save_data(content)
+        local_removals = []
+    elif cmd == 'cascade':
+        content,local_removals = cascade(content,local_removals)
     # Exit software
     elif 'exit' in cmd:
         print('Exiting')
@@ -256,7 +282,8 @@ while 'exit' not in cmd:
 
 # Save data on shutdown unless specified otherwise
 if 'q' not in cmd:
-    save_data(content)
+    content,local_removals = cascade(content,local_removals)
+    c = save_data(content)
     print('Shutdown and save complete')
 else:
     print('Shutdown (no save) complete')
