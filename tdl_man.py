@@ -6,8 +6,6 @@ f = open(tdl_data,'r')
 content = f.readlines()
 f.close()
 
-local_removals = []
-
 # TDL entries have <ID>,<Name>,<Date>
 
 # For formatting item entries in list
@@ -18,10 +16,9 @@ def cascade(content,lrs):
         id = str(line.split(',')[0])
 
         # Remember to reset removal list
-        for x in range(len(lrs)):
-            if lrs[x] == id:
-                lrs[x] = id_counter
-
+        for y in range(len(lrs)):
+            if lrs[y] == id:
+                lrs[y] = str(id_counter)
         entry = line[len(id):]
         entry = str(id_counter) + entry
         content[x] = entry
@@ -37,7 +34,7 @@ def buffer(item, length):
             buff += ' '
     return str(item+buff)
 
-def show_all(content, name='',tpe='', dep=''):
+def show_all(content, lrs, name='',tpe='', dep=''):
     # Get current datetime
     today = datetime.now()
     now = today.strftime("%d/%m/%Y %H:%M:%S")
@@ -66,7 +63,7 @@ def show_all(content, name='',tpe='', dep=''):
             id = line.split(',')[0]
 
             # Display items scheduled for removal with '*' at front
-            if id in local_removals:
+            if id in lrs:
                 print('*',end='')
             ## Output formatting so all entries use 100 char descriptions
             
@@ -79,11 +76,11 @@ def show_all(content, name='',tpe='', dep=''):
             print(line[4])
     print('')
     # List entries scheduled for removal by id
-    if len(local_removals) != 0:
+    if len(lrs) != 0:
 
         # Formatting for local removals
         print('To be removed (ID): ',end='')
-        for lr in local_removals:
+        for lr in lrs:
             print(lr + ' ',end='')
         print('')
     print('')
@@ -110,12 +107,12 @@ def add_entry(content):
     content.append(new_entry)
     return content
 
-def remove_entry(content):
+def remove_entry(content,lrs):
     # Schedule entry removals for next list save
     # So accidental removals are reversable
 
     # Reshow all current entries
-    show_all(content)
+    show_all(content, lrs)
     is_valid = False
     
     # Accept valid entries for ID only
@@ -132,7 +129,8 @@ def remove_entry(content):
             print('-tdl: Unrecognised ID - enter existing ID for removal')
 
     # Add valid ID to list for later removal
-    local_removals.append(id)
+    lrs.append(str(id))
+    return lrs
 
 def ammend_entry(content):
     # Add new entry by <ID>,<Name>,<Date>
@@ -194,7 +192,7 @@ Help/Info - Accepted commands
 >> exit q - exit without saving (refresh removals list)
     ''')
 
-def save_data(content):
+def save_data(content,lrs):
     # Write tdl data to output file
 
     word = ''
@@ -202,9 +200,10 @@ def save_data(content):
     for line in content:
         id = line.split(',')[0]
         # Write only non-removal items to save string
-        if id not in local_removals:
+        if id not in lrs:
             word += line
             newcontent.append(line)
+
 
     # Write savestring to file
     g = open(tdl_data,'w')
@@ -212,7 +211,7 @@ def save_data(content):
     g.close() 
     return newcontent
 
-def show_kwargs(content, cmd):
+def show_kwargs(content, cmd, lrs):
     is_entering = False
     kwargs = []
     entry = ''
@@ -237,7 +236,9 @@ def show_kwargs(content, cmd):
             tpe = kw.replace('type=','')
         elif 'dep=' in kw:
             dep = kw.replace('dep=','')
-    show_all(content,name=name, tpe=tpe, dep=dep)
+    show_all(content, lrs,name=name, tpe=tpe, dep=dep)
+
+lrs = []
 
 # Welcome to manager
 print('\nTo Do List Manager v0.1 - dwest77\n')
@@ -249,15 +250,15 @@ while 'exit' not in cmd:
     # Show all entries command
     if 'show' in cmd:
         if cmd == 'show':
-            show_all(content)
+            show_all(content, lrs)
         else:
-            show_kwargs(content,cmd)
+            show_kwargs(content,cmd, lrs)
     # Add entry to list
     elif cmd == 'add':
         content = add_entry(content)
     # Remove entry from list
     elif cmd == 'rm':
-        remove_entry(content)
+        lrs = remove_entry(content, lrs)
     # Ammend existing entry by ID
     elif cmd == 'ammend':
         content = ammend_entry(content)
@@ -268,11 +269,11 @@ while 'exit' not in cmd:
         pass
     # Save Entries
     elif cmd == 'save':
-        content,local_removals = cascade(content,local_removals)
-        content = save_data(content)
-        local_removals = []
+        content,lrs = cascade(content,lrs)
+        content = save_data(content, lrs)
+        lrs = []
     elif cmd == 'cascade':
-        content,local_removals = cascade(content,local_removals)
+        content,lrs = cascade(content,lrs)
     # Exit software
     elif 'exit' in cmd:
         print('Exiting')
@@ -282,8 +283,8 @@ while 'exit' not in cmd:
 
 # Save data on shutdown unless specified otherwise
 if 'q' not in cmd:
-    content,local_removals = cascade(content,local_removals)
-    c = save_data(content)
+    content,lrs = cascade(content,lrs)
+    c = save_data(content,lrs)
     print('Shutdown and save complete')
 else:
     print('Shutdown (no save) complete')
