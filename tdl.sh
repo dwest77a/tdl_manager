@@ -1,3 +1,4 @@
+cd ~/Documents/tdl_manager
 FILE=$(pwd)/tdl_data.txt
 if ! [ -f "$FILE" ]; then
 	echo "Creating new data text file for tdl"
