@@ -1,12 +1,40 @@
 from datetime import datetime
+import os
 
 ## Open ToDoList data and read content
 tdl_data = "/home/dwest77/Documents/tdl_manager/tdl_data.txt"
+tdl_backup = "/home/dwest77/Documents/tdl_manager/tdl_backup.txt"
 f = open(tdl_data,'r')
 content = f.readlines()
 f.close()
 
 # TDL entries have <ID>,<Name>,<Date>
+
+def backup():
+    os.system('cp {} {}'.format(tdl_data, tdl_backup))
+
+def recombine(arr):
+    word = ''
+    for item in arr:
+        word += str(item) + ','
+    return word[:-1]
+
+# For taking a specified reordering pattern to reassign ids
+def reorder(content):
+    new_pattern = input("Reorder old IDs: ")
+    new_p = new_pattern.split(" ")
+    if len(new_p) != len(content):
+        print('Not All IDs included in reassignment - exiting reorder')
+        return content
+    new_content = []
+    for index, new_id in enumerate(new_p):
+        line = content[int(new_id)]
+        larr = line.split(',')
+        larr[0] = int(index)
+        line = recombine(larr)
+        new_content.append(line)
+
+    return new_content
 
 # For formatting item entries in list
 def cascade(content,lrs):
@@ -268,6 +296,13 @@ while 'exit' not in cmd:
     elif cmd == '':
         pass
     # Save Entries
+    elif cmd == 'reorder':
+        content = save_data(content, lrs)
+        lrs = []
+        show_all(content, lrs)
+        content = reorder(content)
+        content = save_data(content, lrs)
+        lrs = []
     elif cmd == 'save':
         content,lrs = cascade(content,lrs)
         content = save_data(content, lrs)
@@ -285,6 +320,7 @@ while 'exit' not in cmd:
 if 'q' not in cmd:
     content,lrs = cascade(content,lrs)
     c = save_data(content,lrs)
+    backup()
     print('Shutdown and save complete')
 else:
     print('Shutdown (no save) complete')
