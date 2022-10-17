@@ -215,7 +215,12 @@ Help/Info - Accepted commands
         name="Name of item"
         dep="Dependencies
         type="Type of item"
->> ammend - ammend descritpion of existing entry by ID
+
+>> ammend  - ammend descritpion of existing entry by ID
+>> cascade - relabel items so ID gaps are closed (0,4,5 -> 0,1,2)
+>> reorder - specify item reordering (0 2 5 1 3 4)
+
+>> save   - save current list without exiting the program
 >> exit   - exit and save data
 >> exit q - exit without saving (refresh removals list)
     ''')
