@@ -297,15 +297,16 @@ if __name__ == '__main__':
     else:
         tdl_data   = path + '/tdl_data.json'
         tdl_backup = path + '/tdl_backup.json'
-    print(tdl_data)
 
     ## ----- Get tdl data that currently exists -----
 
     if os.path.isfile(tdl_data):
-        pass
+        print('Found existing tdl data file')
     elif os.path.isfile(tdl_backup):
         os.sys('cp {} {}'.format(tdl_backup, tdl_data))
+        print('Retrieving backup tdl data')
     else:
+        print('Creating new tdl data file')
         f = open(tdl_data,'w')
         f.close()
 
@@ -314,6 +315,7 @@ if __name__ == '__main__':
         json_contents = json.load(f)
     except json.decoder.JSONDecodeError:
         json_contents = {}
+        print('Current tdl data file is empty - creating blank list')
     f.close()
 
     # Welcome to manager
