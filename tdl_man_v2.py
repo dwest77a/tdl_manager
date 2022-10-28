@@ -23,6 +23,17 @@ Help/Info - Accepted commands
 
 # TDL entries have <ID>,<Name>,<Date>
 
+def getSortedIntKeys(mydict):
+    raw = mydict.keys()
+    ints = []
+    try:
+        for key in raw:
+            ints.append(int(key))
+        return sorted(ints)
+    except ValueError:
+        print('Error: Invalid ID in dict')
+        return sorted(raw)
+
 def backup(tdl_data, tdl_backup):
     os.system('cp {} {}'.format(tdl_data, tdl_backup))
 
@@ -36,21 +47,23 @@ def recombine(arr):
 def reorder(json_contents):
     new_pattern = input("Reorder old IDs: ")
     new_p = new_pattern.split(" ")
+    json_contents_n = {}
+
     if len(new_p) != len(json_contents):
         print('Not All IDs included in reassignment - exiting reorder')
         return json_contents
 
-    for x, key in enumerate(sorted(json_contents.keys())):
+    for x, key in enumerate(getSortedIntKeys(json_contents)):
         new_key = new_p[x]
-        json_contents[new_key] = json_contents[key]
-        del json_contents[key]
+        json_contents_n[new_key] = json_contents[str(key)]
 
-    return json_contents
+    return json_contents_n
 
 # For formatting item entries in list
 def cascade(json_contents):
     json_new = {}
-    for key in sorted(json_contents.keys()):
+    json_con_keys = getSortedIntKeys(json_contents)
+    for key in json_con_keys:
         id = int(key)
         is_lowest = False
         while not is_lowest:
@@ -63,7 +76,7 @@ def cascade(json_contents):
                 except:
                     id = id-1
         # id is now lowest without running into next id
-        json_new[str(id)] = json_contents[key]
+        json_new[str(id)] = json_contents[str(key)]
     return json_new
 
 def buffer(item, length):
@@ -185,18 +198,18 @@ def ammendEntry(json_contents):
             print('-tdl: Unrecognised ID - enter existing ID for ammendment')
     # Get entry name as input and assemble date in readable format
 
-    entry_name = input('*Name: ')
-    if entry_name == '':
-        entry_name = old_info['Description']
     entry_type = input('*Type: ')
     if entry_type == '':
         entry_type = old_info['Type']
     entry_format = input('*Format: ')
     if entry_format == '':
         entry_format = old_info['Format']
+    entry_name = input('*Item: ')
+    if entry_name == '':
+        entry_name = old_info['Description']
     entry_dep  = input('*Dependencies: ')
     if entry_dep == '':
-        entry_dep = old_info['Dependencies']
+        entry_dep = old_info['Dependency']
     entry_date = today.strftime("%d/%m/%Y %H:%M:%S")
 
     # Assemble new entry str and append
@@ -303,7 +316,7 @@ if __name__ == '__main__':
     if os.path.isfile(tdl_data):
         print('Found existing tdl data file')
     elif os.path.isfile(tdl_backup):
-        os.sys('cp {} {}'.format(tdl_backup, tdl_data))
+        os.system('cp {} {}'.format(tdl_backup, tdl_data))
         print('Retrieving backup tdl data')
     else:
         print('Creating new tdl data file')
