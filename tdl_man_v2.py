@@ -55,7 +55,7 @@ def reorder(json_contents):
 
     for x, key in enumerate(getSortedIntKeys(json_contents)):
         new_key = new_p[x]
-        json_contents_n[new_key] = json_contents[str(key)]
+        json_contents_n[str(key)] = json_contents[new_key]
 
     return json_contents_n
 
@@ -63,20 +63,9 @@ def reorder(json_contents):
 def cascade(json_contents):
     json_new = {}
     json_con_keys = getSortedIntKeys(json_contents)
-    for key in json_con_keys:
-        id = int(key)
-        is_lowest = False
-        while not is_lowest:
-            if id == 0:
-                is_lowest = True
-            else:
-                try:
-                    temp = json_contents[str(id-1)]
-                    is_lowest = True
-                except:
-                    id = id-1
-        # id is now lowest without running into next id
-        json_new[str(id)] = json_contents[str(key)]
+
+    for index, key in enumerate(json_con_keys):
+        json_new[index] = json_contents[str(key)]
     return json_new
 
 def buffer(item, length):
@@ -364,7 +353,7 @@ if __name__ == '__main__':
         elif cmd == 'reorder':
             json_contents = saveData(json_contents, tdl_data)
             showAll(json_contents)
-            reorder(json_contents)
+            json_contents = reorder(json_contents)
             json_contents = saveData(json_contents, tdl_data)
         elif cmd == 'save':
             json_contents = cascade(json_contents)
