@@ -63,9 +63,8 @@ def reorder(json_contents):
 def cascade(json_contents):
     json_new = {}
     json_con_keys = getSortedIntKeys(json_contents)
-
     for index, key in enumerate(json_con_keys):
-        json_new[index] = json_contents[str(key)]
+        json_new[str(index)] = json_contents[str(key)]
     return json_new
 
 def buffer(item, length):
@@ -90,7 +89,7 @@ def titleList():
     print('Date')
     print('---------------------------------------------------------------------------------------------------------------------------------------------------')
 
-def showAll(json_contents, name='',tpe='', dep=''):
+def showAll(json_contents, name='',tpe='', dep='', ob=''):
     # Get current datetime
     titleList()
     # For all entries
@@ -278,7 +277,7 @@ def showKwargs(json_contents, cmd):
             entry += char
 
     kwargs.append(entry)
-    name, tpe, dep = '','',''
+    name, tpe, dep, ob = '','','',''
     for kw in kwargs:
         if 'name=' in kw:
             name = kw.replace('name=','')
@@ -286,7 +285,9 @@ def showKwargs(json_contents, cmd):
             tpe = kw.replace('type=','')
         elif 'dep=' in kw:
             dep = kw.replace('dep=','')
-    showAll(json_contents, name=name, tpe=tpe, dep=dep)
+        elif 'orderby=' in kw:
+            ob = kw.replace('orderby=','')
+    showAll(json_contents, name=name, tpe=tpe, dep=dep, ob=ob)
 
 if __name__ == '__main__':
 
@@ -356,9 +357,7 @@ if __name__ == '__main__':
             json_contents = reorder(json_contents)
             json_contents = saveData(json_contents, tdl_data)
         elif cmd == 'save':
-            json_contents = cascade(json_contents)
             json_contents = saveData(json_contents, tdl_data)
-            lrs = []
         elif cmd == 'cascade':
             json_contents = cascade(json_contents)
         # Exit software
