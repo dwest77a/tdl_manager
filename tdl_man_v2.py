@@ -323,6 +323,7 @@ if __name__ == '__main__':
 
     # Welcome to manager
     print('\nTo Do List Manager v2.1 - dwest77\n')
+    showAll(json_contents)
     # Entry for new fields
     cmd = ''
     while 'exit' not in cmd:
