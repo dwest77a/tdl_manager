@@ -7,4 +7,4 @@ else
 	echo "Opening tdl data file"
 fi
 
-python $(pwd)/src/tdl_man_v2.py
+python $(pwd)/src/tdlman.py
