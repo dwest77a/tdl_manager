@@ -27,7 +27,8 @@ jobs:
           pip3 install -r requirements.txt
       # Test with pytest
       - name: Test with PyTest
-        run: pytest
+        run: |
+          pytest tests/*
 
     strategy: 
       matrix: 
