@@ -1,6 +1,4 @@
 import pytest
-import sys
-sys.path.insert(0,'..')
 
 entry_empty = {
     "Format": "", 
@@ -37,9 +35,8 @@ json_reorder = {
     ]
 )
 def test_reorder(json_in, json_out, reorder_str):
-    from src.tdlman import reorder
+    from tdlman import reorder
 
     json_check = reorder(json_in, reorder_str=reorder_str)
 
     assert json_check == json_out
-    

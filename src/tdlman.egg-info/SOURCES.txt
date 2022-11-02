@@ -1,0 +1,5 @@
+setup.py
+tdlman.egg-info/PKG-INFO
+tdlman.egg-info/SOURCES.txt
+tdlman.egg-info/dependency_links.txt
+tdlman.egg-info/top_level.txt
