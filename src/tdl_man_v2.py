@@ -295,11 +295,11 @@ if __name__ == '__main__':
 
     path = os.getcwd()
     if len(sys.argv) > 1:
-        tdl_data   = path + '/' + sys.argv[1] + '/tdl_data.json'
-        tdl_backup = path + '/' + sys.argv[1] + '/tdl_backup.json'
+        tdl_data   = path + '/' + sys.argv[1] + '/data/tdl_data.json'
+        tdl_backup = path + '/' + sys.argv[1] + '/data/tdl_backup.json'
     else:
-        tdl_data   = path + '/tdl_data.json'
-        tdl_backup = path + '/tdl_backup.json'
+        tdl_data   = path + '/data/tdl_data.json'
+        tdl_backup = path + '/data/tdl_backup.json'
 
     ## ----- Get tdl data that currently exists -----
 
