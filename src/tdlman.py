@@ -44,8 +44,11 @@ def recombine(arr):
     return word[:-1]
 
 # For taking a specified reordering pattern to reassign ids
-def reorder(json_contents):
-    new_pattern = input("Reorder old IDs: ")
+def reorder(json_contents, reorder_str=False):
+    if reorder_str:
+        new_pattern = reorder_str
+    else:
+        new_pattern = input("Reorder old IDs: ")
     new_p = new_pattern.split(" ")
     json_contents_n = {}
 
