@@ -4,7 +4,7 @@ name: CI
 on: push
 # Define a single job, build
 
-job:
+jobs:
   build:
     # Specify an OS for the runner
     runs-on: ${{ matrix.os }}
@@ -16,7 +16,7 @@ job:
       - name: Checkout repository
         uses: actions/checkout@v2
       # Set up Python env
-      - name: Setup Python 3.9
+      - name: Setup Python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
