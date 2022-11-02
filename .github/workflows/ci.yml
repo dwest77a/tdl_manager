@@ -1,0 +1,35 @@
+name: CI
+# Specify which GitHub events will trigger a CI build
+
+on: push
+# Define a single job, build
+
+job:
+  build:
+    # Specify an OS for the runner
+    runs-on: ${{ matrix.os }}
+
+    #Define steps
+    steps:
+
+      # Firstly, checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      # Set up Python env
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      # Install dependencies
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install -r requirements.txt
+      # Test with pytest
+      - name: Test with PyTest
+        run: pytest
+
+    strategy: 
+      matrix: 
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: [3.8, 3.9]
