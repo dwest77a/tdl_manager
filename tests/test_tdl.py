@@ -35,7 +35,7 @@ json_reorder = {
     ]
 )
 def test_reorder(json_in, json_out, reorder_str):
-    from tdlman import reorder
+    from src.tdlman import reorder
 
     json_check = reorder(json_in, reorder_str=reorder_str)
 
