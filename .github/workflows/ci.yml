@@ -7,7 +7,7 @@ on: push
 jobs:
   build:
     # Specify an OS for the runner
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     #Define steps
     steps:
@@ -28,7 +28,7 @@ jobs:
       # Test with pytest
       - name: Test with PyTest
         run: |
-          pytest tests/*
+          python3 perform_tests.py
 
     strategy: 
       matrix: 
