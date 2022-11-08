@@ -178,7 +178,7 @@ def removeEntry(json_contents, id=''): # Test with id
 
     return json_contents
 
-def forceRemoveEntry(json_contents): # test with dict
+def forceRemoveEntry(json_contents): # test swith dict
     ## Copy all entries to a new dict
     ## Except for entries scheduled for removal
     json_new = {}
