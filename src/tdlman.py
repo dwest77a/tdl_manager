@@ -21,10 +21,10 @@ Help/Info - Accepted commands
 >> exit q - exit without saving (refresh removals list)
     '''
 
-# TDL entries have <ID>,<Name>,<Date>
+def getSortedIntKeys(mydict): # test with example dicts
+    ## Sort integer dictionary keys into correct order of size
 
-def getSortedIntKeys(mydict):
-    raw = mydict.keys()
+    raw  = mydict.keys()
     ints = []
     try:
         for key in raw:
@@ -35,23 +35,26 @@ def getSortedIntKeys(mydict):
         return sorted(raw)
 
 def backup(tdl_data, tdl_backup):
+    ## Copy tdl_data to backup file
     os.system('cp {} {}'.format(tdl_data, tdl_backup))
 
 def recombine(arr):
-    word = ''
-    for item in arr:
-        word += str(item) + ','
-    return word[:-1]
+    ## Convert array to comma-separated string
+    return ','.join(arr)
 
-# For taking a specified reordering pattern to reassign ids
-def reorder(json_contents, reorder_str=False):
+def reorder(json_contents, reorder_str=False): # test with example dicts and string
+    ## Take a reorder string to rearrange old zoom ids into a new order,
+    ## then reassign ids in that order.
     if reorder_str:
         new_pattern = reorder_str
     else:
         new_pattern = input("Reorder old IDs: ")
-    new_p = new_pattern.split(" ")
+
+    # define new json dict
+    new_p           = new_pattern.split(" ")
     json_contents_n = {}
 
+    # Check for inconsistent new order with number of old ids
     if len(new_p) != len(json_contents):
         print('Not All IDs included in reassignment - exiting reorder')
         return json_contents
@@ -62,16 +65,17 @@ def reorder(json_contents, reorder_str=False):
 
     return json_contents_n
 
-# For formatting item entries in list
-def cascade(json_contents):
+def cascade(json_contents): # test with example dicts
+    ## Reduce all ids and fill in gaps between integers
     json_new = {}
     json_con_keys = getSortedIntKeys(json_contents)
     for index, key in enumerate(json_con_keys):
         json_new[str(index)] = json_contents[str(key)]
     return json_new
 
-def buffer(item, length):
-    buff=''
+def buffer(item, length): # test with strings
+    ## Format a string to have a specific length and fill in additional whitespace
+    buff = ''
     if len(item) >= length:
         item = item[:length]
     else:
@@ -80,6 +84,7 @@ def buffer(item, length):
     return str(item+buff)
 
 def titleList():
+    ## Print list headers with correct formatting
     today = datetime.now()
     now = today.strftime("%d/%m/%Y %H:%M:%S")
     print('')
@@ -93,14 +98,20 @@ def titleList():
     print('---------------------------------------------------------------------------------------------------------------------------------------------------')
 
 def showAll(json_contents, name='',tpe='', dep='', ob=''):
-    # Get current datetime
+    ## Show all list items in correct ordering and with specific flags
+
+    # print list headers
     titleList()
-    # For all entries
+
+    # For all entries, print data with correct formatting
     for id in json_contents.keys():
+
         entry = json_contents[id]
         nfilter = (entry['Description'] == name or name == '')
         dfilter = (entry['Dependency'] == dep or dep == '')
         tfilter = (entry['Type'] == tpe or tpe == '')
+
+        # Filter using kwargs for each item
         if nfilter or dfilter or tfilter:
         
             try:
@@ -108,8 +119,9 @@ def showAll(json_contents, name='',tpe='', dep='', ob=''):
                     print('*',end='')
             except:
                 pass
+                # entry['rm'] does not exist for most entries
             
-            # Format id=0,name=1,type=2,dependencies=3,date=4
+            # Print each item with whitespace added via buffer
             print(
                 buffer(id,3),
                 buffer(entry['Type'],20),
@@ -122,7 +134,7 @@ def showAll(json_contents, name='',tpe='', dep='', ob=''):
     print('')
 
 def addEntry(json_contents):
-    # Add new entry by <ID>,<Name>,<Date>
+    ## Add new entry to json dict - take all relevant inputs from user
     today = datetime.now()
     # Extract most recent ID from latest entry
     entry_id = np.max(np.array(list(json_contents.keys()),dtype=int))+1
@@ -144,26 +156,31 @@ def addEntry(json_contents):
     }
     return json_contents
 
-def removeEntry(json_contents):
-    # Schedule entry removals for next list save
-    # So accidental removals are reversable
+def removeEntry(json_contents, id=''): # Test with id
+    ## Schedule entry removals for next list save
+    ## So accidental removals are reversable
 
     # Reshow all current entries
-    showAll(json_contents)
+
     is_valid = False
     
     # Accept valid entries for ID only
     while not is_valid:
-        id = input('Remove (ID) >> ')
+        if id == '':
+            id = input('Remove (ID) >> ')
+
         try:
             json_contents[id]['rm'] = True
             is_valid = True
         except:
             print('-tdl: Unrecognised ID - enter existing ID for removal')
+            id = input('Remove (ID) >> ')
 
     return json_contents
 
-def forceRemoveEntry(json_contents):
+def forceRemoveEntry(json_contents): # test with dict
+    ## Copy all entries to a new dict
+    ## Except for entries scheduled for removal
     json_new = {}
     for key in json_contents.keys():
         try:
@@ -173,22 +190,23 @@ def forceRemoveEntry(json_contents):
     return json_new
 
 def ammendEntry(json_contents):
-    """
-    Routine for ammending existing records by id
-    """
+    ## Ammend existing entries with user input
+
+    # Update alteration date to current date
     today = datetime.now()
 
     is_valid = False
     while not is_valid:
         entry_id = input('Ammend (ID) >> ')
-        # Search list for ID entered
+        
+        # Check ID is valid within dict
         try:
             old_info = dict(json_contents[entry_id])
             is_valid = True
         except:
             print('-tdl: Unrecognised ID - enter existing ID for ammendment')
-    # Get entry name as input and assemble date in readable format
-
+    
+    # Get entry ammendments or set to old values if inputs are blank
     entry_type = input('*Type: ')
     if entry_type == '':
         entry_type = old_info['Type']
@@ -203,7 +221,7 @@ def ammendEntry(json_contents):
         entry_dep = old_info['Dependency']
     entry_date = today.strftime("%d/%m/%Y %H:%M:%S")
 
-    # Assemble new entry str and append
+    # Assemble new entry dict value
     json_contents[entry_id] = {
         'Format':entry_format,
         'Description':entry_name,
@@ -215,12 +233,13 @@ def ammendEntry(json_contents):
     return json_contents
 
 def showHelp():
-    """
-    Show help information
-    """
+    ## Display help info from global string
     print(HELP)
 
 def mapOldData():
+    ## Map old list-style data to dict format in version 2
+    ## - Deprecated since conversion is complete
+
     f = open('tdl_data.txt','r')
     content = f.readlines()
     f.close()
@@ -247,9 +266,9 @@ def mapOldData():
     g.close()
 
 def saveData(json_contents, tdl_write):
-    """ 
-    Write tdl data to output file - json format
-    """
+    ## Write json dict to file
+    ## remove entries, cascade ids before saving.
+
     json_contents = forceRemoveEntry(json_contents)
     json_contents = cascade(json_contents)
     g = open(tdl_write,'w')
@@ -258,11 +277,10 @@ def saveData(json_contents, tdl_write):
     return json_contents
 
 def showKwargs(json_contents, cmd):
-    """
-    Routine for extracting kwarg information from user input cmd and displaying
-    appropriate filters with showAll routine.
-    """
+    ## Routine for extracting kwarg information from user input cmd and displaying
+    ## appropriate filters with showAll routine.
 
+    # Multiple kwargs extracted using char iteration
     is_entering = False
     kwargs = []
     entry = ''
@@ -342,8 +360,13 @@ if __name__ == '__main__':
         elif cmd == 'add':
             json_contents = addEntry(json_contents)
         # Remove entry from list
-        elif cmd == 'rm':
-            json_contents = removeEntry(json_contents)
+        elif 'rm' in cmd:
+            if cmd == 'rm':
+                showAll(json_contents)
+                json_contents = removeEntry(json_contents)
+            else:
+                id = cmd.split(' ')[1]
+                json_contents = removeEntry(json_contents, id=id)
         # Ammend existing entry by ID
         elif cmd == 'ammend':
             json_contents = ammendEntry(json_contents)
