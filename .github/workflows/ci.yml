@@ -26,13 +26,8 @@ jobs:
           python3 -m pip install --upgrade pip
           pip3 install -r requirements.txt
       # Test with pytest
-      - name: Copy Pytest scripts
-        run: |
-          python3 cp_tests.py
       - name: Run pytest
         run: |
           pytest
-      - name: Remove Pytest scripts
-        run: |
-          python3 rm_tests.py
+
 
