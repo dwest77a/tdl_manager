@@ -1,102 +1,26 @@
 import pytest
 
-entry_empty = {
-    "Format": "", 
-    "Description": "", 
-    "Type": "", 
-    "Dependency": "", 
-    "Date": "",
-    "rm": False
-}
-
-entry_filled = {
-    "Format": "test", 
-    "Description": "test", 
-    "Type": "test", 
-    "Dependency": "test", 
-    "Date": "test",
-    "rm": False
-}
-
-entry_rm = {
-    "Format": "test", 
-    "Description": "test", 
-    "Type": "test", 
-    "Dependency": "test", 
-    "Date": "test",
-    "rm": True
-}
-
-json_base = {
-    "0": entry_empty,
-    "1": entry_filled,
-    "2": entry_empty
-}
-
-json_reorder = {
-    "0": entry_filled,
-    "1": entry_empty,
-    "2": entry_empty
-}
-
-json_cascade = {
-    "0": entry_empty,
-    "5": entry_filled,
-    "7": entry_empty
-}
-
-json_unordered = {
-    "3": entry_empty,
-    "1": entry_filled,
-    "2": entry_empty
-}
-
-json_removesched = {
-    "0": entry_filled,
-    "1": entry_filled,
-    "2": entry_rm
-}
-
-json_removed = {
-    "0": entry_filled,
-    "1": entry_filled
-}
-
-@pytest.mark.parametrize(
-    "json_in, json_out, reorder_str", [
-        (json_base, json_reorder, "1 0 2")
-    ]
-)
-def test_reorder(json_in, json_out, reorder_str):
+def test_reorder(json_reorder, json_base, reorder_str):
     from tdlman.tdlman import reorder
 
-    json_check = reorder(json_in, reorder_str=reorder_str)
+    json_check = reorder(json_reorder, reorder_str=reorder_str)
 
-    assert json_check == json_out
+    assert json_check == json_base
 
-@pytest.mark.parametrize(
-    "json_in, arr_out", [
-        (json_unordered, [1,2,3])
-    ]
-)
-def test_gSIK(json_in, arr_out):
+
+def test_gSIK(json_unordered, arr_ordered):
     from tdlman.tdlman import getSortedIntKeys
 
-    arr_check = getSortedIntKeys(json_in)
-    assert arr_check == arr_out
+    arr_check = getSortedIntKeys(json_unordered)
+    assert arr_check == arr_ordered
 
     return None
 
-@pytest.mark.parametrize(
-    "json_in, json_out", [
-        (json_cascade, json_base)
-    ]
-)
-def test_cascade(json_in, json_out):
+def test_cascade(json_cascade, json_base):
     from tdlman.tdlman import cascade
 
-    json_check = cascade(json_in)
-    assert json_check == json_out
+    json_check = cascade(json_cascade)
+    assert json_check == json_base
 
     return None
 
@@ -110,32 +34,22 @@ def test_buffer():
 
     return None
 
-@pytest.mark.parametrize(
-    "json_in, id", [
-        (json_base, "0")
-    ]
-)
-def test_removeEntry(json_in, id):
+def test_removeEntry(json_base, id_ex):
     from tdlman.tdlman import removeEntry
 
-    json_check = removeEntry(json_in, id=id)
-    assert json_check[id]['rm'] == True
+    print(json_base)
+
+    json_check = removeEntry(json_base, id=id_ex)
+    assert json_check[id_ex]['rm'] == True
 
     return None
 
-@pytest.mark.parametrize(
-    "json_in, json_out", [
-        (json_removesched, json_removed)
-    ]
-)
-def test_forceRME(json_in, json_out):
+
+def test_forceRME(json_remove, json_base):
     from tdlman.tdlman import forceRemoveEntry
-    print(json_in)
-    print(json_out)
 
-    json_check = forceRemoveEntry(json_in)
-    print(json_check)
+    json_check = forceRemoveEntry(json_remove)
 
-    assert json_check == json_out
+    assert json_check == json_base
 
     return None
