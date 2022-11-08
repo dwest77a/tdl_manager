@@ -185,6 +185,8 @@ def forceRemoveEntry(json_contents): # test swith dict
     for key in json_contents.keys():
         try:
             temp = json_contents[key]['rm']
+            if not temp:
+                json_new[key] = json_contents[key]
         except:
             json_new[key] = json_contents[key]
     return json_new

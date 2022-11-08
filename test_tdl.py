@@ -5,7 +5,8 @@ entry_empty = {
     "Description": "", 
     "Type": "", 
     "Dependency": "", 
-    "Date": ""
+    "Date": "",
+    "rm": False
 }
 
 entry_filled = {
@@ -13,7 +14,8 @@ entry_filled = {
     "Description": "test", 
     "Type": "test", 
     "Dependency": "test", 
-    "Date": "test"
+    "Date": "test",
+    "rm": False
 }
 
 entry_rm = {
@@ -50,13 +52,13 @@ json_unordered = {
 }
 
 json_removesched = {
-    "0": entry_empty,
+    "0": entry_filled,
     "1": entry_filled,
     "2": entry_rm
 }
 
 json_removed = {
-    "0": entry_empty,
+    "0": entry_filled,
     "1": entry_filled
 }
 
@@ -128,8 +130,11 @@ def test_removeEntry(json_in, id):
 )
 def test_forceRME(json_in, json_out):
     from src.tdlman import forceRemoveEntry
+    print(json_in)
+    print(json_out)
 
     json_check = forceRemoveEntry(json_in)
+    print(json_check)
 
     assert json_check == json_out
 
