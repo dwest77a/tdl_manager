@@ -68,7 +68,7 @@ json_removed = {
     ]
 )
 def test_reorder(json_in, json_out, reorder_str):
-    from src.tdlman import reorder
+    from tdlman.tdlman import reorder
 
     json_check = reorder(json_in, reorder_str=reorder_str)
 
@@ -80,7 +80,7 @@ def test_reorder(json_in, json_out, reorder_str):
     ]
 )
 def test_gSIK(json_in, arr_out):
-    from src.tdlman import getSortedIntKeys
+    from tdlman.tdlman import getSortedIntKeys
 
     arr_check = getSortedIntKeys(json_in)
     assert arr_check == arr_out
@@ -93,7 +93,7 @@ def test_gSIK(json_in, arr_out):
     ]
 )
 def test_cascade(json_in, json_out):
-    from src.tdlman import cascade
+    from tdlman.tdlman import cascade
 
     json_check = cascade(json_in)
     assert json_check == json_out
@@ -101,7 +101,7 @@ def test_cascade(json_in, json_out):
     return None
 
 def test_buffer():
-    from src.tdlman import buffer
+    from tdlman.tdlman import buffer
 
     mystring = 'helloworld'
     bstring = buffer(mystring, 20)
@@ -116,7 +116,7 @@ def test_buffer():
     ]
 )
 def test_removeEntry(json_in, id):
-    from src.tdlman import removeEntry
+    from tdlman.tdlman import removeEntry
 
     json_check = removeEntry(json_in, id=id)
     assert json_check[id]['rm'] == True
@@ -129,7 +129,7 @@ def test_removeEntry(json_in, id):
     ]
 )
 def test_forceRME(json_in, json_out):
-    from src.tdlman import forceRemoveEntry
+    from tdlman.tdlman import forceRemoveEntry
     print(json_in)
     print(json_out)
 
