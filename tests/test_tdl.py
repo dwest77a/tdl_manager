@@ -16,8 +16,14 @@ entry_filled = {
     "Date": "test"
 }
 
-entry_rm = entry_filled
-entry_rm['rm'] = True
+entry_rm = {
+    "Format": "test", 
+    "Description": "test", 
+    "Type": "test", 
+    "Dependency": "test", 
+    "Date": "test",
+    "rm": True
+}
 
 json_base = {
     "0": entry_empty,
@@ -110,7 +116,7 @@ def test_buffer():
 def test_removeEntry(json_in, id):
     from src.tdlman import removeEntry
 
-    json_check = removEntry(json_in, id=id)
+    json_check = removeEntry(json_in, id=id)
     assert json_check[id]['rm'] == True
 
     return None
