@@ -89,13 +89,38 @@ def titleList():
     now = today.strftime("%d/%m/%Y %H:%M:%S")
     print('')
     print('To Do List: {}'.format(now))
-    print(buffer('ID',4),end="")
-    print(buffer('Type',21),end="")
-    print(buffer('Format',21),end="")
-    print(buffer('Item',61),end="")
-    print(buffer('Dependency',21),end="")
+    print(buffer('ID',3),end="")
+    print(buffer('Type',20),end="")
+    print(buffer('Format',20),end="")
+    print(buffer('Item',60),end="")
+    print(buffer('Dependency',20),end="")
     print('Date')
     print('---------------------------------------------------------------------------------------------------------------------------------------------------')
+
+def showSelection(entry, id, name, tpe, dep, ob):
+    outp = ''
+    nfilter = (entry['Description'] == name or name == '')
+    dfilter = (entry['Dependency'] == dep or dep == '')
+    tfilter = (entry['Type'] == tpe or tpe == '')
+
+    # Filter using kwargs for each item
+    if nfilter or dfilter or tfilter:
+    
+        try:
+            if entry['rm']:
+                outp += '*'
+        except:
+            pass
+            # entry['rm'] does not exist for most entries
+        
+        # Print each item with whitespace added via buffer
+        outp += buffer(id,3) + \
+                    buffer(entry['Type'],20) + \
+                    buffer(entry['Format'],20) + \
+                    buffer(entry['Description'],60) + \
+                    buffer(entry['Dependency'],20) + \
+                    entry['Date'] + '\n'
+    return outp
 
 def showAll(json_contents, name='',tpe='', dep='', ob=''):
     ## Show all list items in correct ordering and with specific flags
@@ -104,33 +129,20 @@ def showAll(json_contents, name='',tpe='', dep='', ob=''):
     titleList()
 
     # For all entries, print data with correct formatting
+    current = ''
+    lt = ''
+
     for id in json_contents.keys():
-
-        entry = json_contents[id]
-        nfilter = (entry['Description'] == name or name == '')
-        dfilter = (entry['Dependency'] == dep or dep == '')
-        tfilter = (entry['Type'] == tpe or tpe == '')
-
-        # Filter using kwargs for each item
-        if nfilter or dfilter or tfilter:
-        
-            try:
-                if entry['rm']:
-                    print('*',end='')
-            except:
-                pass
-                # entry['rm'] does not exist for most entries
-            
-            # Print each item with whitespace added via buffer
-            print(
-                buffer(id,3),
-                buffer(entry['Type'],20),
-                buffer(entry['Format'],20),
-                buffer(entry['Description'],60),
-                buffer(entry['Dependency'],20),
-                entry['Date']
-            )
-            print('')
+        entry = showSelection(json_contents[id], id, name, tpe, dep, ob)
+        if 'LT' in json_contents[id]['Dependency']:
+            lt += entry
+        else:
+            current += entry
+    print(current)
+    if lt != '':
+        print('Longer Term Items')
+        #titleList()
+        print(lt)
     print('')
 
 def addEntry(json_contents):
