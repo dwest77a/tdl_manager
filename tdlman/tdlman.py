@@ -21,6 +21,19 @@ Help/Info - Accepted commands
 >> exit q - exit without saving (refresh removals list)
     '''
 
+HEADERS = ['Format','Type','Label','Current','Stage','Dependency','Date']
+
+def getDataFormatted(file):
+    f = open(file,'r')
+    content = json.load(f)
+    for key in content.keys():
+        for head in HEADERS:
+            try:
+                temp = content[key][head]
+            except:
+                content[key][head] = ''
+    return content
+
 def getSortedIntKeys(mydict): # test with example dicts
     ## Sort integer dictionary keys into correct order of size
 
@@ -90,16 +103,18 @@ def titleList():
     print('')
     print('To Do List: {}'.format(now))
     print(buffer('ID',3),end="")
-    print(buffer('Type',20),end="")
-    print(buffer('Format',20),end="")
-    print(buffer('Item',60),end="")
+    print(buffer('Type',15),end="")
+    print(buffer('Format',15),end="")
+    print(buffer('Item',20),end="")
+    print(buffer('Current',60),end="")
+    print(buffer('Stage',10),end="")
     print(buffer('Dependency',20),end="")
     print('Date')
     print('---------------------------------------------------------------------------------------------------------------------------------------------------')
 
 def showSelection(entry, id, name, tpe, dep, ob):
     outp = ''
-    nfilter = (entry['Description'] == name or name == '')
+    nfilter = (entry['Label'] == name or name == '')
     dfilter = (entry['Dependency'] == dep or dep == '')
     tfilter = (entry['Type'] == tpe or tpe == '')
 
@@ -115,9 +130,11 @@ def showSelection(entry, id, name, tpe, dep, ob):
         
         # Print each item with whitespace added via buffer
         outp += buffer(id,3) + \
-                    buffer(entry['Type'],20) + \
-                    buffer(entry['Format'],20) + \
-                    buffer(entry['Description'],60) + \
+                    buffer(entry['Type'],15) + \
+                    buffer(entry['Format'],15) + \
+                    buffer(entry['Label'],20) + \
+                    buffer(entry['Current'],60) + \
+                    buffer(entry['Stage'],10) + \
                     buffer(entry['Dependency'],20) + \
                     entry['Date'] + '\n'
     return outp
@@ -141,7 +158,6 @@ def showAll(json_contents, name='',tpe='', dep='', ob=''):
     print(current)
     if lt != '':
         print('Longer Term Items')
-        #titleList()
         print(lt)
     print('')
 
@@ -152,16 +168,20 @@ def addEntry(json_contents):
     entry_id = np.max(np.array(list(json_contents.keys()),dtype=int))+1
 
     # Get entry name as input and assemble date in readable format
-    entry_name   = input('New Item (60 char): ')
-    entry_format = input('Format (20 char): ')
-    entry_type = input('Type (20 char): ')
+    entry_label   = input('New Item (20 char): ')
+    entry_format = input('Format (15 char): ')
+    entry_type = input('Type (15 char): ')
+    entry_stage = input('Stage (10 char): ')
+    entry_current = input('Current (60 char): ')
     entry_dep  = input('Dependencies (20 char): ')
     entry_date = today.strftime("%d/%m/%Y %H:%M:%S")
 
     # Assemble new entry str and append
     json_contents[str(entry_id)] = {
         'Format':entry_format,
-        'Description':entry_name,
+        'Label':entry_label,
+        'Current':entry_current,
+        'Stage':entry_stage,
         'Type':entry_type,
         'Dependency':entry_dep,
         'Date':entry_date
@@ -227,9 +247,16 @@ def ammendEntry(json_contents):
     entry_format = input('*Format: ')
     if entry_format == '':
         entry_format = old_info['Format']
-    entry_name = input('*Item: ')
-    if entry_name == '':
-        entry_name = old_info['Description']
+    entry_label = input('*Label: ')
+    if entry_label == '':
+        entry_label = old_info['Label']
+    entry_current = input('*Current: ')
+    if entry_current == '':
+        entry_current = old_info['Current']
+    entry_stage = input('*Stage: ')
+    if entry_stage == '':
+        entry_stage = old_info['Stage']
+
     entry_dep  = input('*Dependencies: ')
     if entry_dep == '':
         entry_dep = old_info['Dependency']
@@ -238,7 +265,9 @@ def ammendEntry(json_contents):
     # Assemble new entry dict value
     json_contents[entry_id] = {
         'Format':entry_format,
-        'Description':entry_name,
+        'Label':entry_label,
+        'Current':entry_current,
+        'Stage':entry_stage,
         'Type':entry_type,
         'Dependency':entry_dep,
         'Date':entry_date
@@ -348,13 +377,11 @@ if __name__ == '__main__':
         f = open(tdl_data,'w')
         f.close()
 
-    f = open(tdl_data,'r')
     try:
-        json_contents = json.load(f)
+        json_contents = getDataFormatted(tdl_data)
     except json.decoder.JSONDecodeError:
         json_contents = {}
         print('Current tdl data file is empty - creating blank list')
-    f.close()
 
     # Welcome to manager
     print('\nTo Do List Manager v2.1 - dwest77\n')
