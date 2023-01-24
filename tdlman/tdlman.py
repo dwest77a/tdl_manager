@@ -223,7 +223,7 @@ def forceRemoveEntry(json_contents): # test swith dict
             json_new[key] = json_contents[key]
     return json_new
 
-def ammendEntry(json_contents):
+def ammendEntry(json_contents, id=None):
     ## Ammend existing entries with user input
 
     # Update alteration date to current date
@@ -231,14 +231,17 @@ def ammendEntry(json_contents):
 
     is_valid = False
     while not is_valid:
-        entry_id = input('Ammend (ID) >> ')
-        
+        if not id:
+            entry_id = input('Ammend (ID) >> ')
+        else:
+            entry_id = id
         # Check ID is valid within dict
         try:
             old_info = dict(json_contents[entry_id])
             is_valid = True
         except:
             print('-tdl: Unrecognised ID - enter existing ID for ammendment')
+            id = None
     
     # Get entry ammendments or set to old values if inputs are blank
     entry_type = input('*Type: ')
@@ -409,8 +412,12 @@ if __name__ == '__main__':
                 id = cmd.split(' ')[1]
                 json_contents = removeEntry(json_contents, id=id)
         # Ammend existing entry by ID
-        elif cmd == 'ammend':
-            json_contents = ammendEntry(json_contents)
+        elif 'ammend' in cmd:
+            if cmd == 'ammend':
+                json_contents = ammendEntry(json_contents)
+            else:
+                id = cmd.split(' ')[1]
+                json_contents = ammendEntry(json_contents,id=id)
         elif cmd == 'help':
             showHelp()
         # Do nothing
