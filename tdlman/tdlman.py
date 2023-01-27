@@ -103,7 +103,7 @@ def titleList():
     print('')
     print('To Do List: {}'.format(now))
     print(buffer('ID',3),end="")
-    print(buffer('Type',15),end="")
+    print(buffer('Project',15),end="")
     print(buffer('Format',15),end="")
     print(buffer('Item',20),end="")
     print(buffer('Current',60),end="")
@@ -168,13 +168,13 @@ def addEntry(json_contents):
     entry_id = np.max(np.array(list(json_contents.keys()),dtype=int))+1
 
     # Get entry name as input and assemble date in readable format
-    entry_label   = input('New Item (20 char): ')
-    entry_format = input('Format (15 char): ')
-    entry_type = input('Type (15 char): ')
-    entry_stage = input('Stage (10 char): ')
+    entry_type    = input('Project (15 char): ')
+    entry_format  = input('Format (15 char): ')
+    entry_label   = input('Item Label (20 char): ')
     entry_current = input('Current (60 char): ')
-    entry_dep  = input('Dependencies (20 char): ')
-    entry_date = today.strftime("%d/%m/%Y %H:%M:%S")
+    entry_stage   = input('Stage (10 char): ')
+    entry_dep     = input('Dependencies (20 char): ')
+    entry_date    = today.strftime("%d/%m/%Y %H:%M:%S")
 
     # Assemble new entry str and append
     json_contents[str(entry_id)] = {
@@ -210,18 +210,42 @@ def removeEntry(json_contents, id=''): # Test with id
 
     return json_contents
 
-def forceRemoveEntry(json_contents): # test swith dict
+def forceRemoveEntry(json_contents, tdl_path): # test with dict
     ## Copy all entries to a new dict
     ## Except for entries scheduled for removal
+    json_hist = []
     json_new = {}
     for key in json_contents.keys():
         try:
             temp = json_contents[key]['rm']
             if not temp:
                 json_new[key] = json_contents[key]
+            else:
+                json_hist.append(json_contents[key])
         except:
             json_new[key] = json_contents[key]
+    if len(json_hist) > 0:
+        exportOldTasks(json_hist, tdl_path)
     return json_new
+
+def exportOldTasks(history, tdl_path):
+    # Add removed entries to an entry dump
+    try:
+        f = open(os.path.join(tdl_path,'history'),'r')
+        content = ''.join(f.readlines())
+        f.close()
+    except FileNotFoundError:
+        content = ''
+
+    for entry in history:
+        string = json.dumps(entry)
+        content += string + '\n'
+    try:
+        f = open(os.path.join(tdl_path,'history'),'w')
+        f.write(content)
+        f.close()
+    except FileNotFoundError:
+        print('-tdl: Error saving to "history" - check {} directory'.format(tdl_path))
 
 def ammendEntry(json_contents, id=None):
     ## Ammend existing entries with user input
@@ -244,26 +268,28 @@ def ammendEntry(json_contents, id=None):
             id = None
     
     # Get entry ammendments or set to old values if inputs are blank
-    entry_type = input('*Type: ')
+
+    entry_type    = input('*Project: ')
+    entry_format  = input('*Format: ')
+    entry_label   = input('*Label: ')
+    entry_current = input('*Current: ')
+    entry_stage   = input('*Stage: ')
+    entry_dep     = input('*Dependencies: ')
+
     if entry_type == '':
         entry_type = old_info['Type']
-    entry_format = input('*Format: ')
     if entry_format == '':
         entry_format = old_info['Format']
-    entry_label = input('*Label: ')
     if entry_label == '':
         entry_label = old_info['Label']
-    entry_current = input('*Current: ')
     if entry_current == '':
         entry_current = old_info['Current']
-    entry_stage = input('*Stage: ')
     if entry_stage == '':
         entry_stage = old_info['Stage']
-
-    entry_dep  = input('*Dependencies: ')
     if entry_dep == '':
         entry_dep = old_info['Dependency']
-    entry_date = today.strftime("%d/%m/%Y %H:%M:%S")
+
+    entry_date = old_info['Date']
 
     # Assemble new entry dict value
     json_contents[entry_id] = {
@@ -311,11 +337,11 @@ def mapOldData():
     g.write(json.dumps(json_dict))
     g.close()
 
-def saveData(json_contents, tdl_write):
+def saveData(json_contents, tdl_write, tdl_path):
     ## Write json dict to file
     ## remove entries, cascade ids before saving.
 
-    json_contents = forceRemoveEntry(json_contents)
+    json_contents = forceRemoveEntry(json_contents, tdl_path)
     json_contents = cascade(json_contents)
     g = open(tdl_write,'w')
     g.write(json.dumps(json_contents))
@@ -367,6 +393,8 @@ if __name__ == '__main__':
     else:
         tdl_data   = path + '/data/tdl_data.json'
         tdl_backup = path + '/data/tdl_backup.json'
+
+    tdl_path = tdl_data.replace('/tdl_data.json','')
 
     ## ----- Get tdl data that currently exists -----
 
@@ -427,12 +455,12 @@ if __name__ == '__main__':
             pass
         # Save Entries
         elif cmd == 'reorder':
-            json_contents = saveData(json_contents, tdl_data)
+            json_contents = saveData(json_contents, tdl_data, tdl_path)
             showAll(json_contents)
             json_contents = reorder(json_contents)
-            json_contents = saveData(json_contents, tdl_data)
+            json_contents = saveData(json_contents, tdl_data, tdl_path)
         elif cmd == 'save':
-            json_contents = saveData(json_contents, tdl_data)
+            json_contents = saveData(json_contents, tdl_data, tdl_path)
         elif cmd == 'cascade':
             json_contents = cascade(json_contents)
         # Exit software
@@ -444,7 +472,7 @@ if __name__ == '__main__':
 
     # Save data on shutdown unless specified otherwise
     if 'q' not in cmd:
-        json_contents = saveData(json_contents, tdl_data)
+        json_contents = saveData(json_contents, tdl_data, tdl_path)
         backup(tdl_data, tdl_backup)
         print('Shutdown and save complete')
     else:
