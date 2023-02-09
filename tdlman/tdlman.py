@@ -94,7 +94,10 @@ def buffer(item, length): # test with strings
     else:
         for x in range(0,length-len(item)):
             buff += ' '
-    return str(item+buff)
+    if '>' in item:
+        return item.replace('>',buff) + ' '
+    else:
+        return str(item+buff)
 
 def titleList():
     ## Print list headers with correct formatting
