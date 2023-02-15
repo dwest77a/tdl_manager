@@ -99,21 +99,32 @@ def buffer(item, length): # test with strings
     else:
         return str(item+buff)
 
-def titleList():
+def titleList(title=None):
     ## Print list headers with correct formatting
     today = datetime.now()
     now = today.strftime("%d/%m/%Y %H:%M:%S")
     print('')
-    print('To Do List: {}'.format(now))
-    print(buffer('ID',3),end="")
-    print(buffer('Project',15),end="")
-    print(buffer('Format',15),end="")
-    print(buffer('Item',20),end="")
-    print(buffer('Current',60),end="")
-    print(buffer('Stage',10),end="")
-    print(buffer('Dependency',20),end="")
-    print('Date')
-    print('---------------------------------------------------------------------------------------------------------------------------------------------------')
+    if title:
+        print(title)
+        print(buffer('',3),end="")
+        print(buffer('Project',15),end="")
+        print(buffer('Format',15),end="")
+        print(buffer('Item',20),end="")
+        print(buffer('Completion Step',60),end="")
+        print(buffer('Stage',10),end="")
+        print(buffer('Dependency',20),end="")
+        print('Date Completed')
+    else:
+        print('To Do List: {}'.format(now))
+        print(buffer('ID',3),end="")
+        print(buffer('Project',15),end="")
+        print(buffer('Format',15),end="")
+        print(buffer('Item',20),end="")
+        print(buffer('Current',60),end="")
+        print(buffer('Stage',10),end="")
+        print(buffer('Dependency',20),end="")
+        print('Date')
+    print('------------------------------------------------------------------------------------------------------------------------------------------------------------------')
 
 def showSelection(entry, id, name, tpe, dep, ob):
     outp = ''
@@ -142,11 +153,11 @@ def showSelection(entry, id, name, tpe, dep, ob):
                     entry['Date'] + '\n'
     return outp
 
-def showAll(json_contents, name='',tpe='', dep='', ob=''):
+def showAll(json_contents, name='',tpe='', dep='', ob='', title=''):
     ## Show all list items in correct ordering and with specific flags
 
     # print list headers
-    titleList()
+    titleList(title=title)
 
     # For all entries, print data with correct formatting
     current = ''
@@ -163,6 +174,18 @@ def showAll(json_contents, name='',tpe='', dep='', ob=''):
         print('Longer Term Items')
         print(lt)
     print('')
+
+def viewHistory(historyfile):
+    title = 'History of Removed Items'
+    f = open(historyfile,'r')
+    content = f.readlines()
+    f.close()
+    json_contents = {}
+    for x, line in enumerate(content):
+        line = line.replace('true','False')
+        item = eval(line.replace('\n',''))
+        json_contents[str(x)] = item
+    showAll(json_contents, title=title)
 
 def addEntry(json_contents):
     ## Add new entry to json dict - take all relevant inputs from user
@@ -224,6 +247,7 @@ def forceRemoveEntry(json_contents, tdl_path): # test with dict
             if not temp:
                 json_new[key] = json_contents[key]
             else:
+                json_contents[key]['Date'] = datetime.now()
                 json_hist.append(json_contents[key])
         except:
             json_new[key] = json_contents[key]
@@ -393,9 +417,11 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         tdl_data   = path + '/' + sys.argv[1] + '/data/tdl_data.json'
         tdl_backup = path + '/' + sys.argv[1] + '/data/tdl_backup.json'
+        historyfile = path + '/' + sys.argv[1] + '/data/history'
     else:
         tdl_data   = path + '/data/tdl_data.json'
         tdl_backup = path + '/data/tdl_backup.json'
+        historyfile = path + '/data/history'
 
     tdl_path = tdl_data.replace('/tdl_data.json','')
 
@@ -454,6 +480,11 @@ if __name__ == '__main__':
         # Do nothing
         elif cmd == 'mod':
             mapOldData()
+        elif cmd == 'history':
+            if historyfile:
+                viewHistory(historyfile)
+            else:
+                print('-tdl: No history file specified')
         elif cmd == '':
             pass
         # Save Entries
