@@ -236,7 +236,7 @@ def removeEntry(json_contents, id=''): # Test with id
 
     return json_contents
 
-def forceRemoveEntry(json_contents, tdl_path): # test with dict
+def forceRemoveEntry(json_contents, path=None): # test with dict
     ## Copy all entries to a new dict
     ## Except for entries scheduled for removal
     json_hist = []
@@ -247,12 +247,12 @@ def forceRemoveEntry(json_contents, tdl_path): # test with dict
             if not temp:
                 json_new[key] = json_contents[key]
             else:
-                json_contents[key]['Date'] = datetime.now()
+                json_contents[key]['Date'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
                 json_hist.append(json_contents[key])
         except:
             json_new[key] = json_contents[key]
-    if len(json_hist) > 0:
-        exportOldTasks(json_hist, tdl_path)
+    if len(json_hist) > 0 and path:
+        exportOldTasks(json_hist, path)
     return json_new
 
 def exportOldTasks(history, tdl_path):
@@ -368,7 +368,7 @@ def saveData(json_contents, tdl_write, tdl_path):
     ## Write json dict to file
     ## remove entries, cascade ids before saving.
 
-    json_contents = forceRemoveEntry(json_contents, tdl_path)
+    json_contents = forceRemoveEntry(json_contents, path=tdl_path)
     json_contents = cascade(json_contents)
     g = open(tdl_write,'w')
     g.write(json.dumps(json_contents))
