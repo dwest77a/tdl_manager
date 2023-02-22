@@ -49,7 +49,7 @@ def getSortedIntKeys(mydict): # test with example dicts
 
 def backup(tdl_data, tdl_backup):
     ## Copy tdl_data to backup file
-    os.system('cp {} {}'.format(tdl_data, tdl_backup))
+    os.system(f'cp {tdl_data} {tdl_backup}')
 
 def recombine(arr):
     ## Convert array to comma-separated string
@@ -115,7 +115,7 @@ def titleList(title=None):
         print(buffer('Dependency',20),end="")
         print('Date Completed')
     else:
-        print('To Do List: {}'.format(now))
+        print(f'To Do List: {now}')
         print(buffer('ID',3),end="")
         print(buffer('Project',15),end="")
         print(buffer('Format',15),end="")
@@ -272,7 +272,7 @@ def exportOldTasks(history, tdl_path):
         f.write(content)
         f.close()
     except FileNotFoundError:
-        print('-tdl: Error saving to "history" - check {} directory'.format(tdl_path))
+        print(f'-tdl: Error saving to "history" - check {tdl_path} directory')
 
 def ammendEntry(json_contents, id=None):
     ## Ammend existing entries with user input
@@ -430,7 +430,7 @@ if __name__ == '__main__':
     if os.path.isfile(tdl_data):
         print('Found existing tdl data file')
     elif os.path.isfile(tdl_backup):
-        os.system('cp {} {}'.format(tdl_backup, tdl_data))
+        os.system(f'cp {tdl_backup} {tdl_data}')
         print('Retrieving backup tdl data')
     else:
         print('Creating new tdl data file')
@@ -502,7 +502,7 @@ if __name__ == '__main__':
             print('Exiting')
         # Valid commands only
         else:
-            print('-tdl: Unrecognised command - "{}"'.format(cmd))
+            print(f'-tdl: Unrecognised command - "{cmd}"')
 
     # Save data on shutdown unless specified otherwise
     if 'q' not in cmd:
