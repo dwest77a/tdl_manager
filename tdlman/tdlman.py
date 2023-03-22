@@ -160,19 +160,35 @@ def showAll(json_contents, name='',tpe='', dep='', ob='', title=''):
     titleList(title=title)
 
     # For all entries, print data with correct formatting
-    current = ''
-    lt = ''
+
+    # New series of headings - normal, pending (dependencies), long term
+    normal, pmeet, ongoing, pcheck = '','','', ''
 
     for id in json_contents.keys():
         entry = showSelection(json_contents[id], id, name, tpe, dep, ob)
         if 'LT' in json_contents[id]['Dependency']:
-            lt += entry
+            ongoing += entry
+        elif 'Meeting' in json_contents[id]['Dependency']:
+            pmeet += entry
+        elif json_contents[id]['Dependency'] not in ['--','']:
+            pcheck += entry
         else:
-            current += entry
-    print(current)
-    if lt != '':
-        print('Longer Term Items')
-        print(lt)
+            normal += entry
+    # Display standard items
+    print(normal)
+
+    if pmeet != '':
+        print('Pending a Meeting')
+        print(pmeet)
+
+    if pcheck != '':
+        print('Pending Checks')
+        print(pcheck)
+
+    if ongoing != '':
+        print('Ongoing Items')
+        print(ongoing)
+
     print('')
 
 def viewHistory(historyfile):
